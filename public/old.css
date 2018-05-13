@@ -1,0 +1,68 @@
+        .remote-controller-table-holder {
+         	  border-width: 1;
+        }
+        .remote-controller-table-top {
+         	  text-align: center;
+        }
+         /* Remote Controller Buttons */
+        .remote-controller-buttons-style1 {
+            border: 1px solid #000080;
+          	font-size: 14px;
+        }
+         /* Remote Controller */
+        .remote-controller-style1 {
+            border: 5px solid #000080;
+            font-size: 28px;
+        }
+        #lights-table .firstcollumn {
+        	  background-color: rgb(15, 211, 236);
+            color: black;
+        }     
+        #lights-table {/* Light table*/
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #lights-table td, #lights-table th {/* Light table cells*/
+            border: 2px solid #000000;
+            padding: 2px;
+        }
+        #lights-table tr:nth-child(even){
+            background-color: #f2f2f2;
+        }
+         #lights-table tr:hover {
+            background-color: #ddd;
+        }
+        #lights-table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+    	  #sensors-table .firstcollumn {
+    	   	background-color: rgb(15, 211, 236);
+    	    color: black;
+    	  }
+    	  #sensors-table {/* sensors table*/
+    	    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    	    border-collapse: collapse;
+    	    width: 100%;
+    	  }
+    	  #sensors-table td, #sensors-table th {/* sensors table cells*/
+    	    border: 2px solid #000000;
+    	    padding: 2px;
+    	  }
+    	  #sensors-table tr:nth-child(even){
+    	    background-color: #f2f2f2;
+    	  }
+    	  #sensors-table tr:hover {
+    	    background-color: #ddd;
+    	  }
+    	  #sensors-table th {
+    	      padding-top: 12px;
+    	      padding-bottom: 12px;
+    	      text-align: left;
+    	      background-color: #4CAF50;
+    	      color: white;
+    	  }

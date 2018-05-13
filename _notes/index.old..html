@@ -1,0 +1,877 @@
+<html>
+     <style type="text/css">
+
+
+
+      .remote-controller-table-holder {
+      	border-width: 1;
+      }
+
+      .remote-controller-table-top {
+      	text-align: center;
+      }
+      /* Remote Controller Buttons */
+	    .remote-controller-buttons-style1 {
+        border: 1px solid #000080;
+	    	font-size: 14px;
+	    }
+
+      /* Remote Controller */
+	    .remote-controller-style1 {
+	      border: 5px solid #000080;
+        font-size: 28px;
+      }
+      #lights-table .firstcollumn {
+     	  background-color: rgb(15, 211, 236);
+        color: black;
+      }     
+	   #lights-table {/* Light table*/
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+	    }
+
+    #lights-table td, #lights-table th {/* Light table cells*/
+        border: 2px solid #000000;
+        padding: 2px;
+	    }
+
+      #lights-table tr:nth-child(even){
+        background-color: #f2f2f2;
+      }
+
+      #lights-table tr:hover {
+        background-color: #ddd;
+      }
+
+
+
+      #lights-table th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #4CAF50;
+          color: white;
+      }
+
+
+
+
+     #sensors-table .firstcollumn {
+     	background-color: rgb(15, 211, 236);
+      color: black;
+     }
+
+	   #sensors-table {/* sensors table*/
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+	    }
+
+	    #sensors-table td, #sensors-table th {/* sensors table cells*/
+        border: 2px solid #000000;
+        padding: 2px;
+	    }
+
+      #sensors-table tr:nth-child(even){
+        background-color: #f2f2f2;
+      }
+
+      #sensors-table tr:hover {
+        background-color: #ddd;
+      }
+
+      #sensors-table th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #4CAF50;
+          color: white;
+      }
+
+
+	</style>
+
+  <head>
+    <title>Socket.io Test</title>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
+
+    <script> var socket = io.connect();
+
+
+
+      
+        /***************************************************************************************************************
+        * Function to create table
+        *********************/
+        function AddTableCollumn(oData, sVariableName){
+
+            var oCurrentValue = oData;
+           var result = '<td class="firstcollumn">' + sVariableName + '</td>';
+           //var result = "";
+            var bSkip;
+
+            for (var i = 1; i < oData.length; i++) {
+
+                bSkip = false;
+                
+
+                /************************************************************************************************
+                * Exception , Need to check this later, iArrayLightConnected and are not relative to other vars *
+                *                                                                                               *
+                *   ( i != iArraySensorConnected.indexOf(i)) {                                                  *
+                *   if ( sVariableName.includes("Light") && iArrayLightConnected.includes(i) ) {}               *
+                *   if ( sVariableName.includes("Sensor") && iArraySensorConnected.includes(i) ){}              *
+                *                                                                                               *
+                * **********************************************************************************************/
+
+                if ( sVariableName == "iArraySensorConnected" ){
+                    bSkip = true;
+                    result += '<td>';  
+                    result += oData[i];
+                    result += "</td>";
+                    document.getElementById(sVariableName).innerHTML = result;
+                }
+                else if ( sVariableName.includes("Sensor") && ( i == 3 || i == 4 ) ){
+                    bSkip = true;
+                }
+
+                if (!bSkip){
+                        /***************************************************************************************************************
+                        * 1/5 Set styles and vars *
+                        **************************/
+//oCurrentValue[i] == "null"
+                       //Set style for cells with value true green
+                        if ( oData[i] === true ){
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: #1eb52d } </style>';
+                        }
+                        //Set style for cells with value false red            
+                        else if ( oData[i] === false ){
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: #ff0000 } </style>';
+                        }
+
+                        else if ( sVariableName == 'fArrayLightXyXCur'){    
+                            fArrayLightXyXCur[i] = Math.round(oCurrentValue[i] * 100);
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: rgb(' + oCurrentValue[i] * 2.5 + ',' + oCurrentValue[i] * 2.5 + ',' + oCurrentValue[i] * 2.5 + ');} </style>'
+                        }  
+                        else if ( sVariableName == 'fArrayLightXyYCur'){    
+                            fArrayLightXyYCur[i] = Math.round(oCurrentValue[i] * 100);
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: rgb(' + oCurrentValue[i] * 2.5 + ',' + oCurrentValue[i] * 2.5 + ',' + oCurrentValue[i] * 2.5 + ');} </style>'
+                        }  
+
+                        else if ( sVariableName == 'iArrayLightCtCur'){    
+                            iArrayLightCtCur[i] = Math.round(oCurrentValue[i] / 5);
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: rgb(' + oCurrentValue[i] * 2.5 + ',' + oCurrentValue[i] * 2.5 + ',' + oCurrentValue[i] * 2.5 + ');} </style>'
+                        }                                                
+                        //set style for hue,sat,bri = hue
+                        else if ( sVariableName == 'iArrayLightHueCur' ){   
+                            iArrayLightHueCur[i] = Math.round(oCurrentValue[i] / 360);
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: hsl(' + iArrayLightHueCur[i] + ',' + iArrayLightSatCur[i] + '%,' + iArrayLightBriCur[i] + '%) } </style>'
+                        }
+                        else if ( sVariableName == 'iArrayLightSatCur' ){   
+                            iArrayLightSatCur[i] = Math.round(oCurrentValue[i] / 2.54);
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: hsl(' + iArrayLightHueCur[i] + ',' + iArrayLightSatCur[i] + '%,' + iArrayLightBriCur[i] + '%) } </style>'
+                        }
+                        else if ( sVariableName == 'iArrayLightBriCur'){    
+                            iArrayLightBriCur[i] = Math.round(oCurrentValue[i] / 2.54);
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: hsl(' + iArrayLightHueCur[i] + ',' + iArrayLightSatCur[i] + '%,' + iArrayLightBriCur[i] + '%) } </style>'
+                        }
+
+
+
+                        else if ( sVariableName == 'iArraySensorLightLevel'){    
+                            iArraySensorLightLevel[i] = Math.round(oCurrentValue[i] / 510);
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: hsl(' + iArraySensorLightLevel[i] + ',' + iArraySensorLightLevel[i] + '%,' + iArraySensorLightLevel[i] + '%) } </style>'
+                        }
+
+                        //Last:Set style for all undefined cells
+                        else if (oCurrentValue[i] != "0" && ( oCurrentValue[i] == undefined || oCurrentValue[i] == "" ) ){
+                            result += '<style type="text/css"> #' + ( sVariableName + "" + i ) + ' { background-color: #47476b } </style>';
+                        }
+
+                        /***************************************************************************************************************
+                        * 2/5 Start the cell *    Create cell and manipulate style here
+                        *********************/
+
+                        //Set default style for all other cells
+                        if (!bSkip){
+                            result += '<td id="' + ( sVariableName + "" + i ) + '">';  
+                            bSkip = false;
+                        }
+
+                        //document.getElementById('iArrayLightBriCur').id = "red";
+                        //sVariableName.includes("Sensor") && iArraySensorConnected.lastIndexOf(i)
+
+
+                        /***************************************************************************************************************
+                        * 3/5 Add the elements to cell *
+                        *******************************/
+
+                        //Add button to cells with value false/true
+                        if ( sVariableName == "bArrayLightOn" ){
+
+                            setButtonColor = function(status){ 
+                                if (status){ return sColorTrue = '#1eb52d'; } 
+                                else { return sColorFalse = '#ff0000'; }
+                            };
+
+                            lightToggle = function(iLightNumber){ 
+                                socket.emit('lightstoggle',iLightNumber); 
+                            };
+ 
+                            result += '<button id=disable onClick=lightToggle(' + i + ') style="width: 100%; height: 100%; background-color: ' + setButtonColor(oCurrentValue[i]) + ';">' + oCurrentValue[i] + '</button>';
+                        }
+
+                        //Add table as bars in cells
+                        else if ( sVariableName == 'fArrayLightXyXCur' ){   
+                            result += '<table style="width: ' + fArrayLightXyXCur[i] + '%; height: 100%"><tr><td>' + oCurrentValue[i] + '</td></tr></table>';  
+                        }
+                        else if ( sVariableName == 'fArrayLightXyYCur' ){   
+                            result += '<table style="width: ' + fArrayLightXyYCur[i] + '%; height: 100%"><tr><td>' + oCurrentValue[i] + '</td></tr></table>';  
+                        }
+
+
+
+                        else if ( sVariableName == 'iArrayLightCtCur' ){   
+                            result += '<table style="width: ' + iArrayLightCtCur[i] + '%; height: 100%"><tr><td>' + oCurrentValue[i] + '</td></tr></table>';  
+                        }
+
+
+
+                        else if ( sVariableName == 'iArrayLightHueCur' ){   
+                            result += '<table style="width: ' + iArrayLightHueCur[i] + '%; height: 100%"><tr><td>' + oCurrentValue[i] + '</td></tr></table>';  
+                        }
+                        else if ( sVariableName == 'iArrayLightSatCur' ){   
+                            result += '<table style="width: ' + iArrayLightSatCur[i] + '%; height: 100%"><tr><td>' + oCurrentValue[i] + '</td></tr></table>';  
+                        }
+                        else if ( sVariableName == 'iArrayLightBriCur' ){   
+                            result += '<table style="width: ' + iArrayLightBriCur[i] + '%; height: 100%"><tr><td>' + oCurrentValue[i] + '</td></tr></table>';  
+                        }
+
+
+
+                        else if ( sVariableName == 'iArraySensorLightLevel' ){   
+                            result += '<table style="width: ' + iArraySensorLightLevel[i] + '%; height: 100%"><tr><td>' + oCurrentValue[i] + '</td></tr></table>';  
+                        }
+                        /***************************************************************************************************************
+                        * 4/5 Add data to cell or Manipulate cell contents here *
+                        ********************************************************/
+
+                        //If value is null or undefined
+                        if (oData[i] === null || oData[i] === 'undefined' ){; }   //SKIP: ADD DATA  avoid adding data for undefined
+                        else if ( sVariableName == "bArrayLightOn" ){; }          //SKIP: ADD DATA  this data is prensent on button
+                        else if ( sVariableName == "iArrayLightHueCur" ){; }      //SKIP: ADD DATA  this data is present in table
+                        else if ( sVariableName == "iArrayLightSatCur" ){; }      //SKIP: ADD DATA  this data is present in table
+                        else if ( sVariableName == "iArrayLightBriCur" ){; }      //SKIP: ADD DATA  this data is present in table
+                        else if ( sVariableName == "iArrayLightCtCur" ){; }       //SKIP: ADD DATA  this data is present in table
+                        else if ( sVariableName == "fArrayLightXyXCur" ){; }       //SKIP: ADD DATA  this data is present in table
+                        else if ( sVariableName == "fArrayLightXyYCur" ){; }       //SKIP: ADD DATA  this data is present in table
+                        else if ( sVariableName == "iArraySensorLightLevel" ){; }       //SKIP: ADD DATA  this data is present in table
+                        else { result += oData[i]; }                              //ADD DATA
+
+
+                        /***************************************************************************************************************
+                        * 5/5 close the cell tag   *    Close the cell and change the element with the result
+                        ***************************/
+
+                        result += '</td>';
+                        document.getElementById(sVariableName).innerHTML = result;
+
+                } else {
+                    bSkip = false;
+                }
+            }
+        }
+
+ 
+
+      socket.on('iCounter'                       ,function(data){ iCounter = data; $('#iCounter').text(data)                   ;    });
+     
+      socket.on('iArrayLightConnected'           ,function(data){ AddTableCollumn(data, 'iArrayLightConnected'            );    });
+      socket.on('sArrayLightManufacturerName'    ,function(data){ AddTableCollumn(data, 'sArrayLightManufacturerName'     );    });
+      socket.on('sArrayLightModelid'             ,function(data){ AddTableCollumn(data, 'sArrayLightModelid'              );    });
+      socket.on('sArrayLightName'                ,function(data){ AddTableCollumn(data, 'sArrayLightName'                 );    });
+      socket.on('sArrayLightSwversion'           ,function(data){ AddTableCollumn(data, 'sArrayLightSwversion'            );    });
+      socket.on('sArrayLightType'                ,function(data){ AddTableCollumn(data, 'sArrayLightType'                 );    });
+      socket.on('sArrayLightUniqueid'            ,function(data){ AddTableCollumn(data, 'sArrayLightUniqueid'             );    });
+      socket.on('bArrayLightOn'                  ,function(data){ AddTableCollumn(data, 'bArrayLightOn'                   );    });
+      socket.on('bArrayLightReachable'           ,function(data){ AddTableCollumn(data, 'bArrayLightReachable'            );    });
+      socket.on('sArrayLightAlert'               ,function(data){ AddTableCollumn(data, 'sArrayLightAlert'                );    });
+      socket.on('sArrayLightColorMode'           ,function(data){ AddTableCollumn(data, 'sArrayLightColorMode'            );    });
+      socket.on('sArrayLightEffect'              ,function(data){ AddTableCollumn(data, 'sArrayLightEffect'               );    });
+      socket.on('iArrayLightTransitionTime'      ,function(data){ AddTableCollumn(data, 'iArrayLightTransitionTime'       );    });
+      socket.on('fArrayLightXyCur'               ,function(data){ AddTableCollumn(data, 'fArrayLightXyCur'                );    });
+      socket.on('fArrayLightXyXCur'              ,function(data){ AddTableCollumn(data, 'fArrayLightXyXCur'               );    });
+      socket.on('fArrayLightXyYCur'              ,function(data){ AddTableCollumn(data, 'fArrayLightXyYCur'               );    });
+      socket.on('iArrayLightCtCur'               ,function(data){ AddTableCollumn(data, 'iArrayLightCtCur'                );    });
+      socket.on('iArrayLightHueCur'              ,function(data){ AddTableCollumn(data, 'iArrayLightHueCur'               );    });
+      socket.on('iArrayLightSatCur'              ,function(data){ AddTableCollumn(data, 'iArrayLightSatCur'               );    });
+      socket.on('iArrayLightBriCur'              ,function(data){ AddTableCollumn(data, 'iArrayLightBriCur'               );    });
+      socket.on('iArrayLightRgbRedCur'           ,function(data){ AddTableCollumn(data, 'iArrayLightRgbRedCur'            );    });
+      socket.on('iArrayLightRgbGreenCur'         ,function(data){ AddTableCollumn(data, 'iArrayLightRgbGreenCur'          );    });
+      socket.on('iArrayLightRgbBlueCur'          ,function(data){ AddTableCollumn(data, 'iArrayLightRgbBlueCur'           );    });
+      socket.on('fArrayLightXyNew'               ,function(data){ AddTableCollumn(data, 'fArrayLightXyNew'                );    });
+      socket.on('fArrayLightXyXNew'              ,function(data){ AddTableCollumn(data, 'fArrayLightXyXNew'               );    });
+      socket.on('fArrayLightXyYNew'              ,function(data){ AddTableCollumn(data, 'fArrayLightXyYNew'               );    });
+      socket.on('iArrayLightCtNew'               ,function(data){ AddTableCollumn(data, 'iArrayLightCtNew'                );    });
+      socket.on('iArrayLightHueNew'              ,function(data){ AddTableCollumn(data, 'iArrayLightHueNew'               );    });
+      socket.on('iArrayLightSatNew'              ,function(data){ AddTableCollumn(data, 'iArrayLightSatNew'               );    });
+      socket.on('iArrayLightBriNew'              ,function(data){ AddTableCollumn(data, 'iArrayLightBriNew'               );    });
+      socket.on('iArrayLightRgbRedNew'           ,function(data){ AddTableCollumn(data, 'iArrayLightRgbRedNew'            );    });
+      socket.on('iArrayLightRgbGreenNew'         ,function(data){ AddTableCollumn(data, 'iArrayLightRgbGreenNew'          );    });
+      socket.on('iArrayLightRgbBlueNew'          ,function(data){ AddTableCollumn(data, 'iArrayLightRgbBlueNew'           );    });
+      socket.on('fArrayLightXyOld'               ,function(data){ AddTableCollumn(data, 'fArrayLightXyOld'                );    });
+      socket.on('fArrayLightXyXOld'              ,function(data){ AddTableCollumn(data, 'fArrayLightXyXOld'               );    });
+      socket.on('fArrayLightXyYOld'              ,function(data){ AddTableCollumn(data, 'fArrayLightXyYOld'               );    });
+      socket.on('iArrayLightCtOld'               ,function(data){ AddTableCollumn(data, 'iArrayLightCtOld'                );    });
+      socket.on('iArrayLightHueOld'              ,function(data){ AddTableCollumn(data, 'iArrayLightHueOld'               );    });
+      socket.on('iArrayLightSatOld'              ,function(data){ AddTableCollumn(data, 'iArrayLightSatOld'               );    });
+      socket.on('iArrayLightBriOld'              ,function(data){ AddTableCollumn(data, 'iArrayLightBriOld'               );    });
+      socket.on('iArrayLightRgbRedOld'           ,function(data){ AddTableCollumn(data, 'iArrayLightRgbRedOld'            );    });
+      socket.on('iArrayLightRgbGreenOld'         ,function(data){ AddTableCollumn(data, 'iArrayLightRgbGreenOld'          );    });
+      socket.on('iArrayLightRgbBlueOld'          ,function(data){ AddTableCollumn(data, 'iArrayLightRgbBlueOld'           );    });
+      socket.on('iArraySensorConnected'          ,function(data){ AddTableCollumn(data,'iArraySensorConnected'          );    });
+      socket.on('sArraySensorName'               ,function(data){ AddTableCollumn(data, 'sArraySensorName'               );    });
+      socket.on('sArraySensorType'               ,function(data){ AddTableCollumn(data, 'sArraySensorType'               );    });
+      socket.on('sArraySensorModelId'            ,function(data){ AddTableCollumn(data, 'sArraySensorModelId'            );    });
+      socket.on('sArraySensorManufacturerName'   ,function(data){ AddTableCollumn(data, 'sArraySensorManufacturerName'   );    });
+      socket.on('sArraySensorSwVersion'          ,function(data){ AddTableCollumn(data, 'sArraySensorSwVersion'          );    });
+      socket.on('sArraySensorUniqueId'           ,function(data){ AddTableCollumn(data, 'sArraySensorUniqueId'           );    });
+      socket.on('bArraySensorRecycle'            ,function(data){ AddTableCollumn(data, 'bArraySensorRecycle'            );    });
+      socket.on('sArraySensorNameCur'            ,function(data){ AddTableCollumn(data, 'sArraySensorNameCur'            );    });
+      socket.on('sArraySensorTypeCur'            ,function(data){ AddTableCollumn(data, 'sArraySensorTypeCur'            );    });
+      socket.on('sArraySensorModelIdCur'         ,function(data){ AddTableCollumn(data, 'sArraySensorModelIdCur'         );    });
+      socket.on('sArraySensorManufacturerNameCur',function(data){ AddTableCollumn(data, 'sArraySensorManufacturerNameCur');    });
+      socket.on('sArraySensorSwVersionCur'       ,function(data){ AddTableCollumn(data, 'sArraySensorSwVersionCur'       );    });
+      socket.on('sArraySensorUniqueIdCur'        ,function(data){ AddTableCollumn(data, 'sArraySensorUniqueIdCur'        );    });
+      socket.on('bArraySensorRecycleCur'         ,function(data){ AddTableCollumn(data, 'bArraySensorRecycleCur'         );    });
+      socket.on('sArraySensorNameNew'            ,function(data){ AddTableCollumn(data, 'sArraySensorNameNew'            );    });
+      socket.on('sArraySensorTypeNew'            ,function(data){ AddTableCollumn(data, 'sArraySensorTypeNew'            );    });
+      socket.on('sArraySensorModelIdNew'         ,function(data){ AddTableCollumn(data, 'sArraySensorModelIdNew'         );    });
+      socket.on('sArraySensorManufacturerNameNew',function(data){ AddTableCollumn(data, 'sArraySensorManufacturerNameNew');    });
+      socket.on('sArraySensorSwVersionNew'       ,function(data){ AddTableCollumn(data, 'sArraySensorSwVersionNew'       );    });
+      socket.on('sArraySensorUniqueIdNew'        ,function(data){ AddTableCollumn(data, 'sArraySensorUniqueIdNew'        );    });
+      socket.on('bArraySensorRecycleNew'         ,function(data){ AddTableCollumn(data, 'bArraySensorRecycleNew'         );    });
+      socket.on('sArraySensorNameOld'            ,function(data){ AddTableCollumn(data, 'sArraySensorNameOld'            );    });
+      socket.on('sArraySensorTypeOld'            ,function(data){ AddTableCollumn(data, 'sArraySensorTypeOld'            );    });
+      socket.on('sArraySensorModelIdOld'         ,function(data){ AddTableCollumn(data, 'sArraySensorModelIdOld'         );    });
+      socket.on('sArraySensorManufacturerNameOld',function(data){ AddTableCollumn(data, 'sArraySensorManufacturerNameOld');    });
+      socket.on('sArraySensorSwVersionOld'       ,function(data){ AddTableCollumn(data, 'sArraySensorSwVersionOld'       );    });
+      socket.on('sArraySensorUniqueIdOld'        ,function(data){ AddTableCollumn(data, 'sArraySensorUniqueIdOld'        );    });
+      socket.on('bArraySensorRecycleOld'         ,function(data){ AddTableCollumn(data, 'bArraySensorRecycleOld'         );    });
+      socket.on('iArraySensorButtonEvent'        ,function(data){ AddTableCollumn(data, 'iArraySensorButtonEvent'        );    });
+      socket.on('iArraySensorLightLevel'         ,function(data){ AddTableCollumn(data, 'iArraySensorLightLevel'         );    });
+      socket.on('bArraySensorDark'               ,function(data){ AddTableCollumn(data, 'bArraySensorDark'               );    });
+      socket.on('bArraySensorDaylight'           ,function(data){ AddTableCollumn(data, 'bArraySensorDaylight'           );    });
+      socket.on('iArraySensorStatus'             ,function(data){ AddTableCollumn(data, 'iArraySensorStatus'             );    });
+      socket.on('sArraySensorLastupdated'        ,function(data){ AddTableCollumn(data, 'sArraySensorLastupdated'        );    });
+      socket.on('bArraySensorPresence'           ,function(data){ AddTableCollumn(data, 'bArraySensorPresence'           );    });
+      socket.on('iArraySensorTemperature'        ,function(data){ AddTableCollumn(data, 'iArraySensorTemperature'        );    });
+      socket.on('iArraySensorButtonEventCur'     ,function(data){ AddTableCollumn(data, 'iArraySensorButtonEventCur'     );    });
+      socket.on('iArraySensorLightLevelCur'      ,function(data){ AddTableCollumn(data, 'iArraySensorLightLevelCur'      );    });
+      socket.on('bArraySensorDarkCur'            ,function(data){ AddTableCollumn(data, 'bArraySensorDarkCur'            );    });
+      socket.on('bArraySensorDaylightCur'        ,function(data){ AddTableCollumn(data, 'bArraySensorDaylightCur'        );    });
+      socket.on('iArraySensorStatusCur'          ,function(data){ AddTableCollumn(data, 'iArraySensorStatusCur'          );    });
+      socket.on('sArraySensorLastupdatedCur'     ,function(data){ AddTableCollumn(data, 'sArraySensorLastupdatedCur'     );    });
+      socket.on('bArraySensorPresenceCur'        ,function(data){ AddTableCollumn(data, 'bArraySensorPresenceCur'        );    });
+      socket.on('iArraySensorTemperatureCur'     ,function(data){ AddTableCollumn(data, 'iArraySensorTemperatureCur'     );    });
+      socket.on('iArraySensorButtonEventNew'     ,function(data){ AddTableCollumn(data, 'iArraySensorButtonEventNew'     );    });
+      socket.on('iArraySensorLightLevelNew'      ,function(data){ AddTableCollumn(data, 'iArraySensorLightLevelNew'      );    });
+      socket.on('bArraySensorDarkNew'            ,function(data){ AddTableCollumn(data, 'bArraySensorDarkNew'            );    });
+      socket.on('bArraySensorDaylightNew'        ,function(data){ AddTableCollumn(data, 'bArraySensorDaylightNew'        );    });
+      socket.on('iArraySensorStatusNew'          ,function(data){ AddTableCollumn(data, 'iArraySensorStatusNew'          );    });
+      socket.on('sArraySensorLastupdatedNew'     ,function(data){ AddTableCollumn(data, 'sArraySensorLastupdatedNew'     );    });
+      socket.on('bArraySensorPresenceNew'        ,function(data){ AddTableCollumn(data, 'bArraySensorPresenceNew'        );    });
+      socket.on('iArraySensorTemperatureNew'     ,function(data){ AddTableCollumn(data, 'iArraySensorTemperatureNew'     );    });
+      socket.on('iArraySensorButtonEventOld'     ,function(data){ AddTableCollumn(data, 'iArraySensorButtonEventOld'     );    });
+      socket.on('iArraySensorLightLevelOld'      ,function(data){ AddTableCollumn(data, 'iArraySensorLightLevelOld'      );    });
+      socket.on('bArraySensorDarkOld'            ,function(data){ AddTableCollumn(data, 'bArraySensorDarkOld'            );    });
+      socket.on('bArraySensorDaylightOld'        ,function(data){ AddTableCollumn(data, 'bArraySensorDaylightOld'        );    });
+      socket.on('iArraySensorStatusOld'          ,function(data){ AddTableCollumn(data, 'iArraySensorStatusOld'          );    });
+      socket.on('sArraySensorLastupdatedOld'     ,function(data){ AddTableCollumn(data, 'sArraySensorLastupdatedOld'     );    });
+      socket.on('bArraySensorPresenceOld'        ,function(data){ AddTableCollumn(data, 'bArraySensorPresenceOld'        );    });
+      socket.on('iArraySensorTemperatureOld'     ,function(data){ AddTableCollumn(data, 'iArraySensorTemperatureOld'     );    });
+      socket.on('bArraySensorOn'                 ,function(data){ AddTableCollumn(data, 'bArraySensorOn'                 );    });
+      socket.on('iArraySensorBattery'            ,function(data){ AddTableCollumn(data, 'iArraySensorBattery'            );    });
+      socket.on('bArraySensorConfigured'         ,function(data){ AddTableCollumn(data, 'bArraySensorConfigured'         );    });
+      socket.on('bArraySensorReachable'          ,function(data){ AddTableCollumn(data, 'bArraySensorReachable'          );    });
+      socket.on('sArraySensorAlert'              ,function(data){ AddTableCollumn(data, 'sArraySensorAlert'              );    });
+      socket.on('iArraySensorTholdDark'          ,function(data){ AddTableCollumn(data, 'iArraySensorTholdDark'          );    });
+      socket.on('iArraySensorTholdOffset'        ,function(data){ AddTableCollumn(data, 'iArraySensorTholdOffset'        );    });
+      socket.on('iArraySensorStatus'             ,function(data){ AddTableCollumn(data, 'iArraySensorStatus'             );    });
+      socket.on('iArraySensorTholdOffset'        ,function(data){ AddTableCollumn(data, 'iArraySensorTholdOffset'        );    });
+      socket.on('bArraySensorLedindication'      ,function(data){ AddTableCollumn(data, 'bArraySensorLedindication'      );    });
+      socket.on('bArraySensorUsertest'           ,function(data){ AddTableCollumn(data, 'bArraySensorUsertest'           );    });
+      socket.on('iArraySensorSensitivity'        ,function(data){ AddTableCollumn(data, 'iArraySensorSensitivity'        );    });
+      socket.on('iArraySensorSensitivityMax'     ,function(data){ AddTableCollumn(data, 'iArraySensorSensitivityMax'     );    });
+      socket.on('iArraySensorSunsetoffset'       ,function(data){ AddTableCollumn(data, 'iArraySensorSunsetoffset'       );    });
+      socket.on('iArraySensorSunriseoffset'      ,function(data){ AddTableCollumn(data, 'iArraySensorSunriseoffset'      );    });
+      socket.on('sArraySensorPending'            ,function(data){ AddTableCollumn(data, 'sArraySensorPending'            );    });
+      socket.on('bArraySensorOnCur'              ,function(data){ AddTableCollumn(data, 'bArraySensorOnCur'              );    });
+      socket.on('iArraySensorBatteryCur'         ,function(data){ AddTableCollumn(data, 'iArraySensorBatteryCur'         );    });
+      socket.on('bArraySensorConfiguredCur'      ,function(data){ AddTableCollumn(data, 'bArraySensorConfiguredCur'      );    });
+      socket.on('bArraySensorReachableCur'       ,function(data){ AddTableCollumn(data, 'bArraySensorReachableCur'       );    });
+      socket.on('sArraySensorAlertCur'           ,function(data){ AddTableCollumn(data, 'sArraySensorAlertCur'           );    });
+      socket.on('iArraySensorTholdDarkCur'       ,function(data){ AddTableCollumn(data, 'iArraySensorTholdDarkCur'       );    });
+      socket.on('iArraySensorTholdOffsetCur'     ,function(data){ AddTableCollumn(data, 'iArraySensorTholdOffsetCur'     );    });
+      socket.on('iArraySensorStatusCur'          ,function(data){ AddTableCollumn(data, 'iArraySensorStatusCur'          );    });
+      socket.on('iArraySensorTholdOffsetCur'     ,function(data){ AddTableCollumn(data, 'iArraySensorTholdOffsetCur'     );    });
+      socket.on('bArraySensorLedindicationCur'   ,function(data){ AddTableCollumn(data, 'bArraySensorLedindicationCur'   );    });
+      socket.on('bArraySensorUsertestCur'        ,function(data){ AddTableCollumn(data, 'bArraySensorUsertestCur'        );    });
+      socket.on('iArraySensorSensitivityCur'     ,function(data){ AddTableCollumn(data, 'iArraySensorSensitivityCur'     );    });
+      socket.on('iArraySensorSensitivityMaxCur'  ,function(data){ AddTableCollumn(data, 'iArraySensorSensitivityMaxCur'  );    });
+      socket.on('iArraySensorSunsetoffsetCur'    ,function(data){ AddTableCollumn(data, 'iArraySensorSunsetoffsetCur'    );    });
+      socket.on('iArraySensorSunriseoffsetCur'   ,function(data){ AddTableCollumn(data, 'iArraySensorSunriseoffsetCur'   );    });
+      socket.on('sArraySensorPendingCur'         ,function(data){ AddTableCollumn(data, 'sArraySensorPendingCur'         );    });
+      socket.on('bArraySensorOnNew'              ,function(data){ AddTableCollumn(data, 'bArraySensorOnNew'              );    });
+      socket.on('iArraySensorBatteryNew'         ,function(data){ AddTableCollumn(data, 'iArraySensorBatteryNew'         );    });
+      socket.on('bArraySensorConfiguredNew'      ,function(data){ AddTableCollumn(data, 'bArraySensorConfiguredNew'      );    });
+      socket.on('bArraySensorReachableNew'       ,function(data){ AddTableCollumn(data, 'bArraySensorReachableNew'       );    });
+      socket.on('sArraySensorAlertNew'           ,function(data){ AddTableCollumn(data, 'sArraySensorAlertNew'           );    });
+      socket.on('iArraySensorTholdDarkNew'       ,function(data){ AddTableCollumn(data, 'iArraySensorTholdDarkNew'       );    });
+      socket.on('iArraySensorTholdOffsetNew'     ,function(data){ AddTableCollumn(data, 'iArraySensorTholdOffsetNew'     );    });
+      socket.on('iArraySensorStatusNew'          ,function(data){ AddTableCollumn(data, 'iArraySensorStatusNew'          );    });
+      socket.on('iArraySensorTholdOffsetNew'     ,function(data){ AddTableCollumn(data, 'iArraySensorTholdOffsetNew'     );    });
+      socket.on('bArraySensorLedindicationNew'   ,function(data){ AddTableCollumn(data, 'bArraySensorLedindicationNew'   );    });
+      socket.on('bArraySensorUsertestNew'        ,function(data){ AddTableCollumn(data, 'bArraySensorUsertestNew'        );    });
+      socket.on('iArraySensorSensitivityNew'     ,function(data){ AddTableCollumn(data, 'iArraySensorSensitivityNew'     );    });
+      socket.on('iArraySensorSensitivityMaxNew'  ,function(data){ AddTableCollumn(data, 'iArraySensorSensitivityMaxNew'  );    });
+      socket.on('iArraySensorSunsetoffsetNew'    ,function(data){ AddTableCollumn(data, 'iArraySensorSunsetoffsetNew'    );    });
+      socket.on('iArraySensorSunriseoffsetNew'   ,function(data){ AddTableCollumn(data, 'iArraySensorSunriseoffsetNew'   );    });
+      socket.on('sArraySensorPendingNew'         ,function(data){ AddTableCollumn(data, 'sArraySensorPendingNew'         );    });
+      socket.on('bArraySensorOnOld'              ,function(data){ AddTableCollumn(data, 'bArraySensorOnOld'              );    });
+      socket.on('iArraySensorBatteryOld'         ,function(data){ AddTableCollumn(data, 'iArraySensorBatteryOld'         );    });
+      socket.on('bArraySensorConfiguredOld'      ,function(data){ AddTableCollumn(data, 'bArraySensorConfiguredOld'      );    });
+      socket.on('bArraySensorReachableOld'       ,function(data){ AddTableCollumn(data, 'bArraySensorReachableOld'       );    });
+      socket.on('sArraySensorAlertOld'           ,function(data){ AddTableCollumn(data, 'sArraySensorAlertOld'           );    });
+      socket.on('iArraySensorTholdDarkOld'       ,function(data){ AddTableCollumn(data, 'iArraySensorTholdDarkOld'       );    });
+      socket.on('iArraySensorTholdOffsetOld'     ,function(data){ AddTableCollumn(data, 'iArraySensorTholdOffsetOld'     );    });
+      socket.on('iArraySensorStatusOld'          ,function(data){ AddTableCollumn(data, 'iArraySensorStatusOld'          );    });
+      socket.on('iArraySensorTholdOffsetOld'     ,function(data){ AddTableCollumn(data, 'iArraySensorTholdOffsetOld'     );    });
+      socket.on('bArraySensorLedindicationOld'   ,function(data){ AddTableCollumn(data, 'bArraySensorLedindicationOld'   );    });
+      socket.on('bArraySensorUsertestOld'        ,function(data){ AddTableCollumn(data, 'bArraySensorUsertestOld'        );    });
+      socket.on('iArraySensorSensitivityOld'     ,function(data){ AddTableCollumn(data, 'iArraySensorSensitivityOld'     );    });
+      socket.on('iArraySensorSensitivityMaxOld'  ,function(data){ AddTableCollumn(data, 'iArraySensorSensitivityMaxOld'  );    });
+      socket.on('iArraySensorSunsetoffsetOld'    ,function(data){ AddTableCollumn(data, 'iArraySensorSunsetoffsetOld'    );    });
+      socket.on('iArraySensorSunriseoffsetOld'   ,function(data){ AddTableCollumn(data, 'iArraySensorSunriseoffsetOld'   );    });
+      socket.on('sArraySensorPendingOld'         ,function(data){ AddTableCollumn(data, 'sArraySensorPendingOld'         );    });
+
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+ 
+
+  </head>
+  <body>
+
+  <p>
+
+
+
+<table class="remote-controller-table-holder" style="width: 100%"> <tr> <td> <table class="remote-controller-style1"> <tr> <td> </td> 
+<td style="width: 118px"> </td> <td style="width: 118px"> </td> <td> </td> <td> </td> </tr> <tr> 
+<td class="remote-controller-table-top" colspan="5">TV</td> </tr> <tr> <td> </td> 
+<td style="width: 118px"> </td> <td style="width: 118px"> </td> <td> </td> <td> </td> </tr> <tr> <td>
+
+<button onClick="socket.emit('SmartTvValuePostInputKeyStandby' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Standby </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyWatchTV' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">WatchTV </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyAdjust' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Adjust </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyFind' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Find </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyAmbilightOnOff' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">AmbilightOnOff </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit1' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit1 </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit2' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit2 </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit3' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit3 </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit4' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit4 </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit5' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit5 </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit0' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit0 </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit6' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit6 </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit7' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit7 </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit8' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit8 </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDigit9' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Digit9 </button> </td> </tr> <tr> <td> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeySource' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Source </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyHome' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Home </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyOnline' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Online </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyDot' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Dot </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyVolumeUp' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> Volume+ </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyInfo' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Info </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyCursorUp' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">CursorUp </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyOptions' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Options </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyChannelStepUp' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> Channel+ </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyMute' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Mute </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyCursorLeft' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">CursorLeft </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyConfirm' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Confirm </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyCursorRight' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">CursorRight </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputPointer' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Pointer </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyVolumeDown' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> Volume- </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyPrevious' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Previous </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyCursorDown' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">CursorDown </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyNext' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Next </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyChannelStepDown')" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> Channel- </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyRedColour' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">RedColour </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyBack' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Back </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostAmbiLightMode' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> pAmbiMode </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostAmbiLightLounge' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> pAmbiLounge </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostPowerstateOn' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">pPowstateOn </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyGreenColour' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">GreenColour </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyRewind' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Rewind </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyPlayPause' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">PlayPause </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyFastForward' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">FastForward </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostAudioVolume' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> pAmbiVolume </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyYellowColour' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">YellowColour </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyPause' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Pause </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyStop' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Stop </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyRecord' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Record </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostAmbilightCached' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> pAmbiCached </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyBlueColour' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">BlueColour </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyViewmode' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Viewmode </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('SmartTvValuePostInputKeySubtitle' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Subtitle </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostInputKeyTeletext' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Teletext </button> </td> <td> 
+<button onClick="socket.emit('SmartTvValuePostPowerstateStandby' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">pPowstateStby </button> </td> </tr> </table> </td>
+
+
+
+
+
+
+
+<td style="width: 1109px" class="remote-controller-table-top"> </td> <td> 
+<table class="remote-controller-style1" align="right"> <tbody class="remote-controller-table-top"> <tr> <td> </td> <td style="width: 118px"> </td> <td> </td> <td> </td> 
+<td style="width: 118px"> </td> </tr> <tr> <td class="remote-controller-table-top" colspan="5">AVR</td> </tr> <tr> <td> </td> 
+<td style="width: 118px"> </td> <td> </td> <td> </td> <td style="width: 118px"> </td> </tr> <tr> <td>
+
+<button onClick="socket.emit('power-on' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">power-on </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('power-off' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">power-off </button> </td> <td> 
+<button onClick="socket.emit('mute-toggle' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">mute-toggle </button> </td> <td> 
+<button onClick="socket.emit('mute-on' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">mute-on </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('mute-off' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">mute-off </button> </td> </tr> <tr> <td>  </td> 
+
+<td style="width: 118px">  </td> <td> </td> <td> </td> 
+<td style="width: 118px"> </td> </tr> <tr> <td>
+
+<button onClick="socket.emit('Media Server')" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Media Server </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('TV' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">TV </button> </td> <td> 
+<button onClick="socket.emit('AUX' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">AUX </button> </td> <td> 
+<button onClick="socket.emit('Disc' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Disc </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('USB' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">USB </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('Game' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Game </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('STB' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">STB </button> </td> <td> 
+<button onClick="socket.emit('Cable Sat' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Cable Sat </button> </td> <td> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('Home Network')" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Home Network </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('Radio' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Radio </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('AM' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">AM </button> </td> <td> 
+<button onClick="socket.emit('FM' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">FM </button> </td> <td> 
+<button onClick="socket.emit('vTuner' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">vTuner </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('Bluetooth' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">Bluetooth </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('pause' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">pause </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('back' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">back </button> </td> <td> 
+<button onClick="socket.emit('play' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">play </button> </td> <td> 
+<button onClick="socket.emit('forward' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">forward </button> </td> <td style="width: 118px"> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('volume-up' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> volume+ </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('sleep' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">sleep </button> </td> <td> 
+<button onClick="socket.emit('home' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">home </button> </td> <td> 
+<button onClick="socket.emit('options' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">options </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('tuner-up' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> tuner+ </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('delay' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">delay </button> </td> <td style="width: 118px"> </td> <td> 
+<button onClick="socket.emit('up' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">up </button> </td> <td> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('tuner-down' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> tuner- </button> </td> </tr> <tr> <td> 
+<button onClick="socket.emit('volume-down' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> volume- </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('left' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">left </button> </td> <td> 
+<button onClick="socket.emit('ok' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">ok </button> </td> <td> 
+<button onClick="socket.emit('right' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">right </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('channel-up' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> channel+ </button> </td> </tr> <tr> <td>  </td> <td style="width: 118px"> 
+<button onClick="socket.emit('previous' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">previous </button> </td> <td> 
+<button onClick="socket.emit('down' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">down </button> </td> <td> 
+<button onClick="socket.emit('next' )" style="width: 110px; height: 30px" class="remote-controller-buttons-style1">next </button> </td> <td style="width: 118px"> 
+<button onClick="socket.emit('channel-down')" style="width: 110px; height: 30px" class="remote-controller-buttons-style1"> channel- </button> </td> </tr> </table> </td> </tr> </table>
+<br></p>
+
+<p>Counter: <a id='iCounter'></a></p>
+<h2>Lights:</h2>
+<table id="lights-table" class="lights-table-style1">
+<tr id='iArrayLightConnected'           ></tr>
+<tr id='sArrayLightManufacturerName'    ></tr>
+<tr id='sArrayLightModelid'             ></tr>
+<tr id='sArrayLightName'                ></tr>
+<tr id='sArrayLightSwversion'           ></tr>
+<tr id='sArrayLightType'                ></tr>
+<tr id='sArrayLightUniqueid'            ></tr>
+<tr id='bArrayLightOn'                  ></tr>
+
+
+  
+<tr id='bArrayLightReachable'           ></tr>
+<tr id='sArrayLightAlert'               ></tr>
+<tr id='sArrayLightColorMode'           ></tr>
+<tr id='sArrayLightEffect'              ></tr>
+<!-- start -->
+<tr id='iArrayLightTransitionTime'      ></tr>
+<!-- stop -->
+<tr id='fArrayLightXyCur'               ></tr>
+<tr id='fArrayLightXyXCur'              ></tr>
+<tr id='fArrayLightXyYCur'              ></tr>
+<tr id='iArrayLightCtCur'               ></tr>
+<tr id='iArrayLightHueCur'              ></tr>
+<tr id='iArrayLightSatCur'              ></tr>
+<tr id='iArrayLightBriCur'              ></tr>
+
+<!-- start -->
+<tr id='iArrayLightRgbRedCur'           ></tr>
+<tr id='iArrayLightRgbGreenCur'         ></tr>
+<tr id='iArrayLightRgbBlueCur'          ></tr>
+<tr id='fArrayLightXyNew'               ></tr>
+<tr id='fArrayLightXyXNew'              ></tr>
+<tr id='fArrayLightXyYNew'              ></tr>
+<tr id='iArrayLightCtNew'               ></tr>
+<tr id='iArrayLightHueNew'              ></tr>
+<tr id='iArrayLightSatNew'              ></tr>
+<tr id='iArrayLightBriNew'              ></tr>
+<tr id='iArrayLightRgbRedNew'           ></tr>
+<tr id='iArrayLightRgbGreenNew'         ></tr>
+<tr id='iArrayLightRgbBlueNew'          ></tr>
+<tr id='fArrayLightXyOld'               ></tr>
+<tr id='fArrayLightXyXOld'              ></tr>
+<tr id='fArrayLightXyYOld'              ></tr>
+<tr id='iArrayLightCtOld'               ></tr>
+<tr id='iArrayLightHueOld'              ></tr>
+<tr id='iArrayLightSatOld'              ></tr>
+<tr id='iArrayLightBriOld'              ></tr>
+<tr id='iArrayLightRgbRedOld'           ></tr>
+<tr id='iArrayLightRgbGreenOld'         ></tr>
+<tr id='iArrayLightRgbBlueOld'          ></tr>
+<!-- stop -->
+</table>
+</br></br>
+<h2>Sensors:</h2>
+<table id="sensors-table" class="sensors-table-style1">
+
+
+<tr id='iArraySensorConnected'          ></tr>
+<tr id='sArraySensorName'               ></tr>
+<tr id='sArraySensorType'               ></tr>
+<tr id='sArraySensorModelId'            ></tr>
+<tr id='sArraySensorManufacturerName'   ></tr>
+<tr id='sArraySensorSwVersion'          ></tr>
+<tr id='sArraySensorUniqueId'           ></tr>
+<tr id='bArraySensorRecycle'            ></tr>
+<!-- start -->
+<tr id='sArraySensorNameCur'            ></tr>
+<tr id='sArraySensorTypeCur'            ></tr>
+<tr id='sArraySensorModelIdCur'         ></tr>
+<tr id='sArraySensorManufacturerNameCur'></tr>
+<tr id='sArraySensorSwVersionCur'       ></tr>
+<tr id='sArraySensorUniqueIdCur'        ></tr>
+<tr id='bArraySensorRecycleCur'         ></tr>
+<tr id='sArraySensorNameNew'            ></tr>
+<tr id='sArraySensorTypeNew'            ></tr>
+<tr id='sArraySensorModelIdNew'         ></tr>
+<tr id='sArraySensorManufacturerNameNew'></tr>
+<tr id='sArraySensorSwVersionNew'       ></tr>
+<tr id='sArraySensorUniqueIdNew'        ></tr>
+<tr id='bArraySensorRecycleNew'         ></tr>
+<tr id='sArraySensorNameOld'            ></tr>
+<tr id='sArraySensorTypeOld'            ></tr>
+<tr id='sArraySensorModelIdOld'         ></tr>
+<tr id='sArraySensorManufacturerNameOld'></tr>
+<tr id='sArraySensorSwVersionOld'       ></tr>
+<tr id='sArraySensorUniqueIdOld'        ></tr>
+<tr id='bArraySensorRecycleOld'         ></tr>
+<!-- stop -->
+<tr id='iArraySensorButtonEvent'        ></tr>
+<tr id='iArraySensorLightLevel'         ></tr>
+<tr id='bArraySensorDark'               ></tr>
+<tr id='bArraySensorDaylight'           ></tr>
+<tr id='iArraySensorStatus'             ></tr>
+<tr id='sArraySensorLastupdated'        ></tr>
+<tr id='bArraySensorPresence'           ></tr>
+<tr id='iArraySensorTemperature'        ></tr>
+<!-- start -->
+<tr id='iArraySensorButtonEventCur'     ></tr>
+<tr id='iArraySensorLightLevelCur'      ></tr>
+<tr id='bArraySensorDarkCur'            ></tr>
+<tr id='bArraySensorDaylightCur'        ></tr>
+<tr id='iArraySensorStatusCur'          ></tr>
+<tr id='sArraySensorLastupdatedCur'     ></tr>
+<tr id='bArraySensorPresenceCur'        ></tr>
+<tr id='iArraySensorTemperatureCur'     ></tr>
+<tr id='iArraySensorButtonEventNew'     ></tr>
+<tr id='iArraySensorLightLevelNew'      ></tr>
+<tr id='bArraySensorDarkNew'            ></tr>
+<tr id='bArraySensorDaylightNew'        ></tr>
+<tr id='iArraySensorStatusNew'          ></tr>
+<tr id='sArraySensorLastupdatedNew'     ></tr>
+<tr id='bArraySensorPresenceNew'        ></tr>
+<tr id='iArraySensorTemperatureNew'     ></tr>
+<tr id='iArraySensorButtonEventOld'     ></tr>
+<tr id='iArraySensorLightLevelOld'      ></tr>
+<tr id='bArraySensorDarkOld'            ></tr>
+<tr id='bArraySensorDaylightOld'        ></tr>
+<tr id='iArraySensorStatusOld'          ></tr>
+<tr id='sArraySensorLastupdatedOld'     ></tr>
+<tr id='bArraySensorPresenceOld'        ></tr>
+<tr id='iArraySensorTemperatureOld'     ></tr>
+<!-- stop -->
+<tr id='bArraySensorOn'                 ></tr>
+<tr id='iArraySensorBattery'            ></tr>
+<tr id='bArraySensorConfigured'         ></tr>
+<tr id='bArraySensorReachable'          ></tr>
+<tr id='sArraySensorAlert'              ></tr>
+<tr id='iArraySensorTholdDark'          ></tr>
+<tr id='iArraySensorTholdOffset'        ></tr>
+<tr id='iArraySensorStatus'             ></tr>
+<tr id='iArraySensorTholdOffset'        ></tr>
+<tr id='bArraySensorLedindication'      ></tr>
+<tr id='bArraySensorUsertest'           ></tr>
+<tr id='iArraySensorSensitivity'        ></tr>
+<tr id='iArraySensorSensitivityMax'     ></tr>
+<tr id='iArraySensorSunsetoffset'       ></tr>
+<tr id='iArraySensorSunriseoffset'      ></tr>
+<tr id='sArraySensorPending'            ></tr>
+<!-- start -->
+<tr id='bArraySensorOnCur'              ></tr>
+<tr id='iArraySensorBatteryCur'         ></tr>
+<tr id='bArraySensorConfiguredCur'      ></tr>
+<tr id='bArraySensorReachableCur'       ></tr>
+<tr id='sArraySensorAlertCur'           ></tr>
+<tr id='iArraySensorTholdDarkCur'       ></tr>
+<tr id='iArraySensorTholdOffsetCur'     ></tr>
+<tr id='iArraySensorStatusCur'          ></tr>
+<tr id='iArraySensorTholdOffsetCur'     ></tr>
+<tr id='bArraySensorLedindicationCur'   ></tr>
+<tr id='bArraySensorUsertestCur'        ></tr>
+<tr id='iArraySensorSensitivityCur'     ></tr>
+<tr id='iArraySensorSensitivityMaxCur'  ></tr>
+<tr id='iArraySensorSunsetoffsetCur'    ></tr>
+<tr id='iArraySensorSunriseoffsetCur'   ></tr>
+<tr id='sArraySensorPendingCur'         ></tr>
+<tr id='bArraySensorOnNew'              ></tr>
+<tr id='iArraySensorBatteryNew'         ></tr>
+<tr id='bArraySensorConfiguredNew'      ></tr>
+<tr id='bArraySensorReachableNew'       ></tr>
+<tr id='sArraySensorAlertNew'           ></tr>
+<tr id='iArraySensorTholdDarkNew'       ></tr>
+<tr id='iArraySensorTholdOffsetNew'     ></tr>
+<tr id='iArraySensorStatusNew'          ></tr>
+<tr id='iArraySensorTholdOffsetNew'     ></tr>
+<tr id='bArraySensorLedindicationNew'   ></tr>
+<tr id='bArraySensorUsertestNew'        ></tr>
+<tr id='iArraySensorSensitivityNew'     ></tr>
+<tr id='iArraySensorSensitivityMaxNew'  ></tr>
+<tr id='iArraySensorSunsetoffsetNew'    ></tr>
+<tr id='iArraySensorSunriseoffsetNew'   ></tr>
+<tr id='sArraySensorPendingNew'         ></tr>
+<tr id='bArraySensorOnOld'              ></tr>
+<tr id='iArraySensorBatteryOld'         ></tr>
+<tr id='bArraySensorConfiguredOld'      ></tr>
+<tr id='bArraySensorReachableOld'       ></tr>
+<tr id='sArraySensorAlertOld'           ></tr>
+<tr id='iArraySensorTholdDarkOld'       ></tr>
+<tr id='iArraySensorTholdOffsetOld'     ></tr>
+<tr id='iArraySensorStatusOld'          ></tr>
+<tr id='iArraySensorTholdOffsetOld'     ></tr>
+<tr id='bArraySensorLedindicationOld'   ></tr>
+<tr id='bArraySensorUsertestOld'        ></tr>
+<tr id='iArraySensorSensitivityOld'     ></tr>
+<tr id='iArraySensorSensitivityMaxOld'  ></tr>
+<tr id='iArraySensorSunsetoffsetOld'    ></tr>
+<tr id='iArraySensorSunriseoffsetOld'   ></tr>
+<tr id='sArraySensorPendingOld'         ></tr>
+<!-- stop -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--  DropDown
+
+    <p>Select: </p>
+    <select id="myselect" onchange="change_myselect(this.value)">
+        <option value="">Choose an option:</option>
+        <option value="lights">lights</option>
+        <option value="state">state</option>
+        <option value="groups">groups</option>
+        <option value="config">config</option>
+        <option value="schedule">schedule</option>
+        <option value="scenes">scenes</option>
+        <option value="sensors">sensors</option>
+        <option value="rules">rules</option>
+        <option value="resourcelinks">resourcelinks</option>
+    </select>
+
+    socket.on('jsonFile', function(data){
+      jData = data;
+      $('#jsonFile').text(jData);
+    });
+
+
+ <p id="jsonFile">NoValue</p>
+
+    <p>Some TestText in index.html</p><p></p>
+    
+    <p>Select from json</p>
+    <select id="myselect" onchange="change_myselect(this.value)">
+        <option value="">Choose an option:</option>
+        <option value="lights">lights</option>
+        <option value="state">state</option>
+        <option value="groups">groups</option>
+        <option value="config">config</option>
+        <option value="schedule">schedule</option>
+        <option value="scenes">scenes</option>
+        <option value="sensors">sensors</option>
+        <option value="rules">rules</option>
+        <option value="resourcelinks">resourcelinks</option>
+    </select>
+
+    <p>Send to server</p>
+    <textarea id="text2">NoValue</textarea>
+    <div id="jsonFile">NoValue</div>
+
+-->
+
+
+  
+
+
+</html> 
+
