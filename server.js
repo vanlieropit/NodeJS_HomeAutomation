@@ -95,8 +95,24 @@ var io = require('socket.io').listen(server);
                 if ( err ){ return err; }; 
                 oHueStateCur[devicetype][devicenumber].state.on = devicekeyvalue; 
             }); 
-        } else {console.log(devicekeyname)};
+        } else
         
+        if (devicekeyname == "effect"){
+            client.setLightState( devicenumber, { "effect": devicekeyvalue }, function( err ){ 
+                if ( err ){ return err; }; 
+                oHueStateCur[devicetype][devicenumber].state.effect = devicekeyvalue; 
+            }); 
+        } else {
+          console.log(devicekeyname);
+        };
+        
+
+
+
+//client.setLightState( iLightNumber, { "effect": sValue },                function( err, result ){ if ( err ){ return err; }; /**/ }); };     // "none","colorloop"
+
+
+
     });
 
     // Send updates every iTickRate

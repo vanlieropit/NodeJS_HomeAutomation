@@ -8,7 +8,7 @@
             <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
             <script>         
 
-//var selected;
+var selected;
 function UpdateValue(devicetype,devicenumber,devicekeyname,devicekeyvalue){
 
     socket.emit('updatevalue',devicetype,devicenumber,devicekeyname,devicekeyvalue);
@@ -24,17 +24,20 @@ var socket = io.connect();
     socket.on('updatefrontend', function(data){ 
         oHueStateCur = data
         $('#iCounter').text(data.iCounter);
-        change_myselect(); 
+        change_myselect(selected); 
     });
 
  
 function change_myselect(selected) {
 
-    if (!selected){
-        selected = 'lights';
-    };
+//    if (selected == undefined){
+//        this.selected = selected;
+//    } else {
+//      selected = this.selected;
+//    }
 
     oHueStateCur[selected].length = (Object.values(oHueStateCur[selected]).filter(a=> typeof(a) == 'object').length);
+
     var result = '<table style="width: 100%">';
     if (selected != 'config' && selected != 'resourcelinks' && selected != 'scenes'){
         for (var i = 1; i <= oHueStateCur[selected].length; i++) {
@@ -43,12 +46,34 @@ function change_myselect(selected) {
             
                 var devicetype = selected;
                 var devicenumber = i;
-                var devicekeyname = "on";
-                var devicekeyvalue = JSON.parse(oHueStateCur[selected][i].state.on);
+                var devicekeyname;
+                var devicekeyvaluecur;
+                var devicekeyvaluenew;
 
                 result += '<tr>';                          
                 result += '<td>';  
-                result += i + JSON.stringify(oHueStateCur[selected][i]) + '<button id="lights' + i + '" onclick="UpdateValue(\'' + devicetype + "','" + devicenumber +  "','" + devicekeyname +  "','" + !devicekeyvalue + '\')">' + devicekeyvalue + '</button>';
+
+                //Add prefixNumber
+                result += i + JSON.stringify(oHueStateCur[selected][i]) + "";
+
+                if ( selected == 'lights'){
+
+                    //Add Button On/Off
+                    devicekeyname = "on";
+                    devicekeyvaluecur = JSON.parse(oHueStateCur[selected][i].state.on);
+                    result += '<button id= "' + devicetype + devicenumber + '" onclick="UpdateValue(\'' + devicetype + "','" + devicenumber +  "','" + devicekeyname +  "','" + !devicekeyvaluecur + '\')">' + devicekeyvaluecur + '</button>';
+
+                    //Add Button Effect ( Colorloop/none )
+                    devicekeyname = "effect";
+                    devicekeyvaluecur = oHueStateCur[selected][i].state.effect;
+                    if (devicekeyvaluecur == "none"){ devicekeyvaluenew = "colorloop"; } else { devicekeyvaluenew = "none"; };
+                    result += '<button id= "' + devicetype + devicenumber + '" onclick="UpdateValue(\'' + devicetype + "','" + devicenumber +  "','" + devicekeyname +  "','" + devicekeyvaluenew + '\')">' + devicekeyvaluecur + '</button>';
+                };
+
+                if ( selected == 'sensors'){
+
+                };
+
                 result += '</td>';  
                 result += '</tr>';  
             }
