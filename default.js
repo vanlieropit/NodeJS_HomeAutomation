@@ -105,8 +105,10 @@ var myInit = function() {
     }
     
     //counter start here when the object contain items
-    if ( Object.values(oHueStateCur).filter(a=> typeof(a) == 'object').length > 4 ){
-        console.log('counter:' + iCounter++ + ' TickRate:' + iTickrate + ' iTickRateDefault:' + iTickRateDefault + ' iTickRateMin:' + iTickRateMin + ' iTickRateMax:' + iTickRateMax + ' Objects Found:' + (Object.values(oHueStateCur).filter(a=> typeof(a) == 'object').length));
+    if ( Object.values(oHueStateCur).filter(a=> typeof(a) == 'object').length > 7 ){
+        oHueStateCur.iCounter = iCounter++;
+        console.log('counter:' + oHueStateCur.iCounter + ' TickRate:' + iTickrate + ' iTickRateDefault:' + iTickRateDefault + ' iTickRateMin:' + iTickRateMin + ' iTickRateMax:' + iTickRateMax + ' Objects Found:' + (Object.values(oHueStateCur).filter(a=> typeof(a) == 'object').length));
+
     }
 
     setTimeout(myInit, iTickrate);

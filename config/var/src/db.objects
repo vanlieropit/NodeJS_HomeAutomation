@@ -1,3 +1,6 @@
 oHueStateOld
 oHueStateCur
 oHueStateNew
+oHueStateOld.iCounter
+oHueStateCur.iCounter
+oHueStateNew.iCounter

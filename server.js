@@ -81,42 +81,31 @@ server.listen(80);
 // use socket.io
 var io = require('socket.io').listen(server);
 
-  //turn off debug
-  //io.set('log level', 0);
+ //turn off debug
+ //io.set('log level', 0);
+ // define interactions with client
+ io.sockets.on('connection', function(socket){
 
-  // define interactions with client
-  io.sockets.on('connection', function(socket){
+    socket.on('updatevalue', function(devicetype,devicenumber,devicekeyname,devicekeyvalue){ 
 
-      // Will do something when its get triggerd by emitter
-      socket.on('power-off'       , function(data){ avr.SendCommand('power-off'                                      ); });
+        console.log(" Type:" + devicetype + " Number:" + devicenumber + " Key:" + devicekeyname + " Value:" + devicekeyvalue);
 
+        if (devicekeyname == "on"){
+            client.setLightState( devicenumber, { "on": JSON.parse(devicekeyvalue) }, function( err ){ 
+                if ( err ){ return err; }; 
+                oHueStateCur[devicetype][devicenumber].state.on = devicekeyvalue; 
+            }); 
+        } else {console.log(devicekeyname)};
+        
+    });
 
-      socket.on('lightstoggle', function(iLightNumber){ 
-        if (bArrayLightOn[iLightNumber]){
-            light.setOff(iLightNumber);
-            //bArrayLightOn[iLightNumber] = false;
-        } else {
-            light.setOn(iLightNumber,true);
-            //bArrayLightOn[iLightNumber] = true;
+    // Send updates every iTickRate
+    setInterval(function(){
+        if ( oHueStateNew !== oHueStateCur && oHueStateNew.length === oHueStateCur.length ){  
+            socket.emit('updatefrontend', oHueStateCur);
         }
-       
-        socket.emit('updatefrontend', "lights");
+    }, iTickrate);
 
-        //console.log(light.getInfo(1));
-
-      });
-
-      socket.on('socketondata', function(){ 
-          socket.emit('iCounter'     ,iCounter     );
-          socket.emit('oHueStateOld' ,oHueStateOld );
-          socket.emit('oHueStateCur' ,oHueStateCur );
-          socket.emit('oHueStateNew' ,oHueStateNew );
-      });
-
-      // Send updates every second        
-      //setInterval(function(){  
-
-
-      //}, 250);
 });
+
 

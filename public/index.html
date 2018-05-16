@@ -1,111 +1,94 @@
 <html>
     <style type="text/css">
-
-
-
 	      </style>
         <head>
             <title>Socket.io Test</title>
             <script src="/socket.io/socket.io.js"></script>
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
-            <script> var socket = io.connect();
+            <script>         
 
-                socket.on('iCounter',function(data){ $('#iCounter').text(data); });
-  
-                socket.on('oHueStateCur' ,function(data){ oHueStateCur = data });
+//var selected;
+function UpdateValue(devicetype,devicenumber,devicekeyname,devicekeyvalue){
 
-                socket.on('updatefrontend' ,function(selected){ 
-                  socket.emit('socketondata');
-                  change_myselect(selected); console.log("test") });
+    socket.emit('updatevalue',devicetype,devicenumber,devicekeyname,devicekeyvalue);
+}
 
-                function updateValues(){
+//function UpdateValueLight(devicename, devicenumber, keyname, value){
+//    socket.emit('updatevalue','lights', devicenumber, keyname, value);
+//}
 
-                    //document.getElementById('scenes').innerHTML = JSON.stringify(oHueStateCur.scenes);
-                    //document.getElementById('rules').innerHTML = JSON.stringify(oHueStateCur.rules);
-                    //document.getElementById('sensors').innerHTML = JSON.stringify(oHueStateCur.sensors);
+var socket = io.connect();
 
+    //Getting current hue state
+    socket.on('updatefrontend', function(data){ 
+        oHueStateCur = data
+        $('#iCounter').text(data.iCounter);
+        change_myselect(); 
+    });
+
+ 
+function change_myselect(selected) {
+
+    if (!selected){
+        selected = 'lights';
+    };
+
+    oHueStateCur[selected].length = (Object.values(oHueStateCur[selected]).filter(a=> typeof(a) == 'object').length);
+    var result = '<table style="width: 100%">';
+    if (selected != 'config' && selected != 'resourcelinks' && selected != 'scenes'){
+        for (var i = 1; i <= oHueStateCur[selected].length; i++) {
+        
+            if ( typeof oHueStateCur[selected][i] !== 'undefined'){
+            
+                var devicetype = selected;
+                var devicenumber = i;
+                var devicekeyname = "on";
+                var devicekeyvalue = JSON.parse(oHueStateCur[selected][i].state.on);
+
+                result += '<tr>';                          
+                result += '<td>';  
+                result += i + JSON.stringify(oHueStateCur[selected][i]) + '<button id="lights' + i + '" onclick="UpdateValue(\'' + devicetype + "','" + devicenumber +  "','" + devicekeyname +  "','" + !devicekeyvalue + '\')">' + devicekeyvalue + '</button>';
+                result += '</td>';  
+                result += '</tr>';  
+            }
+        }
+        result += '</table><p>' + oHueStateCur[selected].length + " items found. </p>";
+    } else {
+        var itemsSkipped = 0;
+        for (var i = 1; i <= Object.keys(oHueStateCur[selected]).length; i++) {
+            if ( Object.keys(oHueStateCur[selected])[i] === 'length' || Object.keys(oHueStateCur[selected])[i] === undefined){
+              itemsSkipped++;
+            } else {
+            
+                // Add keys to first collumn
+                result += '<tr>';                          
+                result += '<td>';  
+                result += Object.keys(oHueStateCur[selected])[i];
+                result += '</td>'; 
+                result += '<td>';
+                // Add values to second collumn
+                //stringify if we have an object
+                if( Object.values(oHueStateCur[selected])[i] === Object(Object.values(oHueStateCur[selected])[i]) ){
+                    result += JSON.stringify(Object.values(oHueStateCur[selected])[i]);
+                } else {
+                   result += Object.values(oHueStateCur[selected])[i];
                 }
-                setInterval(updateValues, 1000);
-
-                function ToggleLight(iLightNumber){
-                    socket.emit('lightstoggle',iLightNumber);
-
-                    //document.getElementById('lights' + iLightNumber).innerHTML = oHueStateCurlights[iLightNumber].state.on;
-
-                }
-
-                function change_myselect(selected) {
-
-                    oHueStateCur[selected].length = (Object.values(oHueStateCur[selected]).filter(a=> typeof(a) == 'object').length);
-
-                    var result = '<table style="width: 100%">';
-
-                    if (selected != 'config' && selected != 'resourcelinks' && selected != 'scenes'){
-
-                        for (var i = 1; i <= oHueStateCur[selected].length; i++) {
-                        
-                            if ( typeof oHueStateCur[selected][i] !== 'undefined'){
-                            
-                                result += '<tr>';                          
-                                result += '<td>';  
-                                result += i + JSON.stringify(oHueStateCur[selected][i]) + '<button id="lights' + i + '" onclick="ToggleLight(' + i + ')">' + oHueStateCur[selected][i].state.on + '</button>';
-                                result += '</td>';  
-                                result += '</tr>';  
-                            }
-                        }
-
-                        result += '</table><p>' + oHueStateCur[selected].length + " items found. </p>";
-
-                    } else {
-
-                        var itemsSkipped = 0;
-
-                        for (var i = 1; i <= Object.keys(oHueStateCur[selected]).length; i++) {
-
-                            if ( Object.keys(oHueStateCur[selected])[i] === 'length' || Object.keys(oHueStateCur[selected])[i] === undefined){
-                              itemsSkipped++;
-                            } else {
-                            
-                                // Add keys to first collumn
-                                result += '<tr>';                          
-                                result += '<td>';  
-                                result += Object.keys(oHueStateCur[selected])[i];
-                                result += '</td>'; 
-                                result += '<td>';
-
-                                // Add values to second collumn
-                                //stringify if we have an object
-                                if( Object.values(oHueStateCur[selected])[i] === Object(Object.values(oHueStateCur[selected])[i]) ){
-                                    result += JSON.stringify(Object.values(oHueStateCur[selected])[i]);
-
-
-
-                                } else {
-                                   result += Object.values(oHueStateCur[selected])[i];
-
-
-
-
-                                }
-                                result += '</td>';  
-                                result += '</tr>';
-
-//                                result += '<tr>';                          
-//                                result += '<td>'; 
-//                                result += 'entries';  
-//                                result += Object.entries(oHueStateCur[selected]);
-//                                result += '</td>';  
-//                                result += '</tr>';
-                            }
-                        }
-                        result += '</table><p>' + ( Object.keys(oHueStateCur[selected]).length - itemsSkipped ) + " items found. </p>";
-                    }
-                 
-                    document.getElementById('myselect-result').innerHTML = result;
-                 }
-
-
+                result += '</td>';  
+                result += '</tr>';
+                //  result += '<tr>';                          
+                //  result += '<td>'; 
+                //  result += 'entries';  
+                //  result += Object.entries(oHueStateCur[selected]);
+                //  result += '</td>';  
+                //  result += '</tr>';
+            }
+        }
+        result += '</table><p>' + ( Object.keys(oHueStateCur[selected]).length - itemsSkipped ) + " items found. </p>";
+    }
+ 
+    document.getElementById('myselect-result').innerHTML = result;
+ }
 
             </script>
         </head>
@@ -113,9 +96,11 @@
         <p id='iCounter'></p>
 
         <p>Select: </p>
-        <select id="myselect" onchange="change_myselect(this.value)">
+            <select id="myselect" onchange="change_myselect(this.value)">
+            
             <option value="">Choose an option:</option>
-            <option value="lights">lights</option>
+            
+            <option value="lights" >lights</option>
             <option value="groups">groups</option>
             <option value="config">config</option>
             <!--<option value="schedule">schedule</option>-->
@@ -130,4 +115,3 @@
     </body>
 </html> 
 
-<script> socket.emit('socketondata'); </script>
