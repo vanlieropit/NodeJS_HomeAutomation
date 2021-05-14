@@ -1,6 +1,44 @@
-# HomeAutomation:
-
+# NodeJS_HomeAutomation
 Just some centralized controlled home automation project in progress....  :)
+
+&nbsp;<br>
+[
+    ![Open source](
+        https://img.shields.io/badge/Open%20Source-Yes-green?style=plastic
+    )
+    ](
+        https://github.com/dannyvanlierop/NodeJS_HomeAutomation
+    )
+[
+    ![License: Mit](
+        https://img.shields.io/badge/license-MIT-green.svg?style=plastic)
+    ](
+        https://en.wikipedia.org/wiki/MIT_License
+    )
+[
+    ![Contributors](
+        https://img.shields.io/github/contributors/dannyvanlierop/NodeJS_HomeAutomation?style=plastic)
+    ](
+        https://github.com/dannyvanlierop/NodeJS_HomeAutomation/graphs/contributors
+    )
+[
+    ![Forks](
+        https://img.shields.io/github/forks/dannyvanlierop/NodeJS_HomeAutomation?style=plastic)
+    ](
+        https://github.com/dannyvanlierop/NodeJS_HomeAutomation/network/members
+	)
+[
+    ![Stars](
+        https://img.shields.io/github/stars/dannyvanlierop/NodeJS_HomeAutomation?style=plastic)
+  ](
+        https://github.com/dannyvanlierop/NodeJS_HomeAutomation/stargazers
+	)
+[
+    ![Issues](
+        https://img.shields.io/github/issues/dannyvanlierop/NodeJS_HomeAutomation?style=plastic)
+  ](
+        https://github.com/dannyvanlierop/NodeJS_HomeAutomation/issues
+	)
 
 **Note:** the `src` folder contains unrelated items.
 
@@ -84,3 +122,11 @@ Just some centralized controlled home automation project in progress....  :)
 
   - Remote controlled with nodejs native POST requests
 
+&nbsp;<br>
+## License:
+<hr>
+
+For more details,
+see the [LICENSES](https://github.com/dannyvanlierop/NodeJS_RaspPI_Ledstrip/blob/master/LICENSE.md) file.
+
+<br>&nbsp;
