@@ -1,5 +1,5 @@
 # NodeJS_HomeAutomation
-Just some centralized controlled home automation project in progress....  :)
+Just some centralized controlled home automation project in progress....  :) :)
 
 &nbsp;<br>
 [
