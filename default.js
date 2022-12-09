@@ -1,6 +1,6 @@
 
 //module.exports.repl.ignoreUndefined = true;
-
+//
 //exports.bArrayLightOn = bArrayLightOn = [];
 //Load all default Paths
 require('./config/var/src/db.paths');
